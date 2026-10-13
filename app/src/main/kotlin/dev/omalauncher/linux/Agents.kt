@@ -54,8 +54,11 @@ val AGENTS =
             "Hermes Agent",
             "Nous Research's agent; on this phone or another machine",
             "hermes",
+            // uv hardlinks wheels out of its cache, and the guest runs under proot's
+            // --link2symlink with /tmp bound elsewhere, so those links fail; copy instead
+            // (UV_LINK_MODE, plus ~/.config/uv/uv.toml for runs the env doesn't reach).
             install = "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | " +
-                "bash -s -- --non-interactive --skip-browser --skip-computer-use",
+                "env UV_LINK_MODE=copy bash -s -- --non-interactive --skip-browser --skip-computer-use",
         ),
     )
 
