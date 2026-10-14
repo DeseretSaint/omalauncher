@@ -60,10 +60,19 @@ val AGENTS =
             // `hermes chat -q` re-runs uv without it and dies ("Operation not permitted",
             // os error 1, on a hardlink out of ~/.hermes/cache/uv/archive-v0). Write uv.toml
             // so every later uv run — chat, update, doctor — copies too.
+            //
+            // HERMES_REPO_URL points the clone at the DeseretSaint fork, which carries the
+            // proot fixes upstream lacks: pm forwards UV_LINK_MODE into its runtime sync
+            // (otherwise the pm-runtime `uv sync` hardlinks and dies under --link2symlink),
+            // and install.sh recovers a commit-graph-corrupt checkout with `git fetch
+            // --refetch`. The installer script still comes from the upstream CDN; only the
+            // repo it clones is redirected. Set HERMES_REPO_URL="" to install vanilla upstream.
             install = "mkdir -p ~/.config/uv && printf '%s\\n' " +
                 "'link-mode = \"copy\"' > ~/.config/uv/uv.toml && " +
                 "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | " +
-                "env UV_LINK_MODE=copy bash -s -- --non-interactive --skip-browser --skip-computer-use",
+                "env UV_LINK_MODE=copy " +
+                "HERMES_REPO_URL=https://github.com/DeseretSaint/hermes-agent.git " +
+                "bash -s -- --non-interactive --skip-browser --skip-computer-use",
         ),
     )
 
