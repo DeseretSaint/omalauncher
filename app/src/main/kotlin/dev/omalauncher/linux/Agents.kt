@@ -55,9 +55,14 @@ val AGENTS =
             "Nous Research's agent; on this phone or another machine",
             "hermes",
             // uv hardlinks wheels out of its cache, and the guest runs under proot's
-            // --link2symlink with /tmp bound elsewhere, so those links fail; copy instead
-            // (UV_LINK_MODE, plus ~/.config/uv/uv.toml for runs the env doesn't reach).
-            install = "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | " +
+            // --link2symlink with /tmp bound elsewhere, so those links fail; copy instead.
+            // The install command's UV_LINK_MODE=copy only reaches the install: at runtime
+            // `hermes chat -q` re-runs uv without it and dies ("Operation not permitted",
+            // os error 1, on a hardlink out of ~/.hermes/cache/uv/archive-v0). Write uv.toml
+            // so every later uv run — chat, update, doctor — copies too.
+            install = "mkdir -p ~/.config/uv && printf '%s\\n' " +
+                "'link-mode = \"copy\"' > ~/.config/uv/uv.toml && " +
+                "curl -fsSL https://hermes-agent.nousresearch.com/install.sh | " +
                 "env UV_LINK_MODE=copy bash -s -- --non-interactive --skip-browser --skip-computer-use",
         ),
     )
